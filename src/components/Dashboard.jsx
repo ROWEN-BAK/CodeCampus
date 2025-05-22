@@ -3,23 +3,41 @@ import '../styles/Dashboard.css';
 import CourseList from './CourseList';
 import PopularCourses from './PopularCourses';
 import Statistics from './Statistics';
+import SearchBar from './SearchBar';
 
 const Dashboard = ({ courseData }) => {
   const [activeTab, setActiveTab] = useState('all');
+  const [searchInput, setSearchInput] = useState('');
+
+  const matchesSearch = (course, Input) => {
+    const q = Input.toLowerCase();
+    return (
+      course.title.toLowerCase().includes(q) ||
+      course.description.toLowerCase().includes(q)
+    );
+  };
 
   const filteredCourses = () => {
-    if (!courseData || !Array.isArray(courseData)) return [];
+    if (!Array.isArray(courseData)) return [];
 
-    if (activeTab === 'all') {
-      return courseData;
-    } else if (actieTab === 'beginner') {
-      return courseData.filter((course) => course.level === 'Beginner');
-    } else if (actieTab === 'gevorderd') {
-      return courseData.filter((course) => course.level === 'Gevorderd');
-    } else if (actieTab === 'populair') {
-      return [...courseData].sort((a, b) => b.views - a.views);
+    
+    let base = courseData;
+    if (activeTab === 'beginner') {
+      base = base.filter((c) => c.level === 'Beginner');
+    } else if (activeTab === 'gemiddeld') {
+      base = base.filter((c) => c.level === 'Gemiddeld');
+    } else if (activeTab === 'gevorderd') {
+      base = base.filter((c) => c.level === 'Gevorderd');
+    } else if (activeTab === 'populair') {
+      base = [...base].sort((a, b) => b.views - a.views);
     }
-    return courseData;
+
+    // filter zoekopdrachten
+    if (searchInput.trim() !== '') {
+      base = base.filter((course) => matchesSearch(course, searchInput));
+    }
+
+    return base;
   };
 
   return (
@@ -38,6 +56,12 @@ const Dashboard = ({ courseData }) => {
           >
             Voor Beginners
           </button>
+                    <button
+            className={activeTab === 'gemiddeld' ? 'active' : ''}
+            onClick={() => setActiveTab('gemiddeld')}
+          >
+            Gemiddeld
+          </button>
           <button
             className={activeTab === 'gevorderd' ? 'active' : ''}
             onClick={() => setActiveTab('gevorderd')}
@@ -51,6 +75,8 @@ const Dashboard = ({ courseData }) => {
             Meest Bekeken
           </button>
         </nav>
+        {/* SEARCHBAR */}
+        <SearchBar Input={searchInput} setInput={setSearchInput} />
       </header>
 
       <div className='dashboard-content'>
@@ -60,6 +86,8 @@ const Dashboard = ({ courseData }) => {
               ? 'Alle Cursussen'
               : activeTab === 'beginner'
               ? 'Cursussen voor Beginners'
+              : activeTab === 'gemiddeld'
+              ? 'Gemiddelde Cursussen'
               : activeTab === 'gevorderd'
               ? 'Gevorderde Cursussen'
               : 'Meest Bekeken Cursussen'}
