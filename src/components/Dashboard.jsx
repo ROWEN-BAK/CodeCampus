@@ -8,6 +8,7 @@ import SearchBar from './SearchBar';
 const Dashboard = ({ courseData }) => {
   const [activeTab, setActiveTab] = useState('all');
   const [searchInput, setSearchInput] = useState('');
+  const [sortOption, setSortOption] = useState('');
 
   const matchesSearch = (course, Input) => {
     const q = Input.toLowerCase();
@@ -20,8 +21,9 @@ const Dashboard = ({ courseData }) => {
   const filteredCourses = () => {
     if (!Array.isArray(courseData)) return [];
 
-    
     let base = courseData;
+
+    // TAB FILTER
     if (activeTab === 'beginner') {
       base = base.filter((c) => c.level === 'Beginner');
     } else if (activeTab === 'gemiddeld') {
@@ -32,10 +34,28 @@ const Dashboard = ({ courseData }) => {
       base = [...base].sort((a, b) => b.views - a.views);
     }
 
-    // filter zoekopdrachten
+    // SEARCH FILTER
     if (searchInput.trim() !== '') {
       base = base.filter((course) => matchesSearch(course, searchInput));
     }
+
+    
+if (sortOption === 'rating') {
+  base = [...base].sort((a, b) => b.rating - a.rating);
+} else if (sortOption === 'views') {
+  base = [...base].sort((a, b) => b.views - a.views);
+} else if (sortOption === 'members') {
+  base = [...base].sort((a, b) => b.members - a.members);
+} else if (sortOption === 'level') {
+  const levelOrder = { Beginner: 1, Gemiddeld: 2, Gevorderd: 3 };
+  base = [...base].sort((a, b) => levelOrder[a.level] - levelOrder[b.level]);
+} else if (sortOption === 'duration') {
+  base = [...base].sort((a, b) => {
+    const getHours = (str) => parseFloat(str);
+    return getHours(a.duration) - getHours(b.duration);
+  });
+}
+
 
     return base;
   };
@@ -56,7 +76,7 @@ const Dashboard = ({ courseData }) => {
           >
             Voor Beginners
           </button>
-                    <button
+          <button
             className={activeTab === 'gemiddeld' ? 'active' : ''}
             onClick={() => setActiveTab('gemiddeld')}
           >
@@ -75,8 +95,22 @@ const Dashboard = ({ courseData }) => {
             Meest Bekeken
           </button>
         </nav>
+
         {/* SEARCHBAR */}
         <SearchBar Input={searchInput} setInput={setSearchInput} />
+
+        {/* SORT DROPDOWN */}
+        <div className="sort-dropdown">
+          <label htmlFor="sort">Sorteer op:</label>
+          <select id="sort" value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
+            <option value="">-- Geen --</option>
+            <option value="rating">Rating</option>
+            <option value="views">Weergaven</option>
+            <option value="members">Leden</option>
+            <option value="level">Moeilijkheid</option>
+            <option value="duration">Duur</option>
+          </select>
+        </div>
       </header>
 
       <div className='dashboard-content'>
