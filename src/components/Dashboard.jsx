@@ -10,11 +10,15 @@ const Dashboard = ({ courseData }) => {
   const [searchInput, setSearchInput] = useState('');
   const [sortOption, setSortOption] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [darkMode, setDarkMode] = useState(false); // ✅ NEW
+ const [darkMode, setDarkMode] = useState(() => {
+  const storedMode = localStorage.getItem('darkMode');
+  return storedMode === 'true'; // Convert string to boolean
+});
 
-  useEffect(() => {
-    document.body.classList.toggle('dark', darkMode);
-  }, [darkMode]);
+useEffect(() => {
+  document.body.classList.toggle('dark', darkMode);
+  localStorage.setItem('darkMode', darkMode); // Save to localStorage
+}, [darkMode]);
 
   const toggleDarkMode = () => {
     setDarkMode((prev) => !prev);
@@ -77,9 +81,8 @@ const Dashboard = ({ courseData }) => {
   return (
     <section className='dashboard'>
       <header className='dashboard-header'>
-        {/* 🌗 DARK MODE TOGGLE */}
         <button className='dark-toggle' onClick={toggleDarkMode}>
-          {darkMode ? '🌞 Light Mode' : '🌙 Dark Mode'}
+          {darkMode ? 'Light Mode' : 'Dark Mode'}
         </button>
 
         <nav className='tab-buttons'>

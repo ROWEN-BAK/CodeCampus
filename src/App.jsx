@@ -8,6 +8,18 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // 🔄 Load dark mode from localStorage on initial load
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem('darkMode') === 'true';
+  });
+
+  // 🌗 Apply class and store to localStorage on change
+  useEffect(() => {
+    document.body.classList.toggle('dark', darkMode);
+    localStorage.setItem('darkMode', darkMode);
+  }, [darkMode]);
+
+  // Simulate loading
   useEffect(() => {
     const fetchData = () => {
       try {
@@ -30,6 +42,7 @@ function App() {
           <p className='brand-tagline'>Ontdek, Leer, Excelleer</p>
         </div>
       </header>
+
       {isLoading ? (
         <section className='loading'>Cursussen worden geladen...</section>
       ) : error ? (
