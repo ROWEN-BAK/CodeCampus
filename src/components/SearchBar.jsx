@@ -10,7 +10,7 @@ const SearchBar = ({ Input, setInput }) => {
       value={Input}
       onChange={handleChange}
       style={{
-        width: '100%',
+        width: '90%',
         padding: '10px',
         fontSize: '16px',
         marginTop: '1rem',

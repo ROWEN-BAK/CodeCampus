@@ -9,6 +9,11 @@ const Dashboard = ({ courseData }) => {
   const [activeTab, setActiveTab] = useState('all');
   const [searchInput, setSearchInput] = useState('');
   const [sortOption, setSortOption] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
+
+  const allCategories = Array.from(
+  new Set(courseData.flatMap((course) => course.categories))
+);
 
   const matchesSearch = (course, Input) => {
     const q = Input.toLowerCase();
@@ -38,6 +43,12 @@ const Dashboard = ({ courseData }) => {
     if (searchInput.trim() !== '') {
       base = base.filter((course) => matchesSearch(course, searchInput));
     }
+
+    if (selectedCategory) {
+  base = base.filter((course) =>
+    course.categories.includes(selectedCategory)
+  );
+}
 
     
 if (sortOption === 'rating') {
@@ -98,6 +109,22 @@ if (sortOption === 'rating') {
 
         {/* SEARCHBAR */}
         <SearchBar Input={searchInput} setInput={setSearchInput} />
+
+        <div className='category-filter'>
+  <label htmlFor='category'>Filter op categorie:</label>
+  <select
+    id='category'
+    value={selectedCategory}
+    onChange={(e) => setSelectedCategory(e.target.value)}
+  >
+    <option value=''>-- Alle categorieën --</option>
+    {allCategories.map((category) => (
+      <option key={category} value={category}>
+        {category}
+      </option>
+    ))}
+  </select>
+</div>
 
         {/* SORT DROPDOWN */}
         <div className="sort-dropdown">
