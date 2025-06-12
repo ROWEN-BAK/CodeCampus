@@ -6,19 +6,32 @@ import Statistics from './Statistics';
 import SearchBar from './SearchBar';
 
 const Dashboard = ({ courseData }) => {
-  const [activeTab, setActiveTab] = useState('all');
-  const [searchInput, setSearchInput] = useState('');
-  const [sortOption, setSortOption] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
- const [darkMode, setDarkMode] = useState(() => {
-  const storedMode = localStorage.getItem('darkMode');
-  return storedMode === 'true'; // Convert string to boolean
-});
+  const [activeTab, setActiveTab] = useState(() => localStorage.getItem('activeTab') || 'all');
+  const [searchInput, setSearchInput] = useState(() => localStorage.getItem('searchInput') || '');
+  const [sortOption, setSortOption] = useState(() => localStorage.getItem('sortOption') || '');
+  const [selectedCategory, setSelectedCategory] = useState(() => localStorage.getItem('selectedCategory') || '');
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true');
 
-useEffect(() => {
-  document.body.classList.toggle('dark', darkMode);
-  localStorage.setItem('darkMode', darkMode); // Save to localStorage
-}, [darkMode]);
+  useEffect(() => {
+    document.body.classList.toggle('dark', darkMode);
+    localStorage.setItem('darkMode', darkMode);
+  }, [darkMode]);
+
+  useEffect(() => {
+    localStorage.setItem('activeTab', activeTab);
+  }, [activeTab]);
+
+  useEffect(() => {
+    localStorage.setItem('searchInput', searchInput);
+  }, [searchInput]);
+
+  useEffect(() => {
+    localStorage.setItem('sortOption', sortOption);
+  }, [sortOption]);
+
+  useEffect(() => {
+    localStorage.setItem('selectedCategory', selectedCategory);
+  }, [selectedCategory]);
 
   const toggleDarkMode = () => {
     setDarkMode((prev) => !prev);
@@ -86,7 +99,36 @@ useEffect(() => {
         </button>
 
         <nav className='tab-buttons'>
-          {/* Tabs... */}
+          <button
+  className={activeTab === 'all' ? 'active' : ''}
+  onClick={() => setActiveTab('all')}
+>
+  Alle
+</button>
+<button
+  className={activeTab === 'beginner' ? 'active' : ''}
+  onClick={() => setActiveTab('beginner')}
+>
+  Beginner
+</button>
+<button
+  className={activeTab === 'gemiddeld' ? 'active' : ''}
+  onClick={() => setActiveTab('gemiddeld')}
+>
+  Gemiddeld
+</button>
+<button
+  className={activeTab === 'gevorderd' ? 'active' : ''}
+  onClick={() => setActiveTab('gevorderd')}
+>
+  Gevorderd
+</button>
+<button
+  className={activeTab === 'populair' ? 'active' : ''}
+  onClick={() => setActiveTab('populair')}
+>
+  Populair
+</button>
         </nav>
 
         <SearchBar Input={searchInput} setInput={setSearchInput} />
