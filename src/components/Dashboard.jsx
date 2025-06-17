@@ -11,7 +11,12 @@ const Dashboard = ({ courseData }) => {
   const [sortOption, setSortOption] = useState(() => localStorage.getItem('sortOption') || '');
   const [selectedCategory, setSelectedCategory] = useState(() => localStorage.getItem('selectedCategory') || '');
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true');
+  const [favorites, setFavorites] = useState(() => {
+    const stored = localStorage.getItem('favorites');
+    return stored ? JSON.parse(stored) : [];
+  });
 
+  // Persist settings
   useEffect(() => {
     document.body.classList.toggle('dark', darkMode);
     localStorage.setItem('darkMode', darkMode);
@@ -33,20 +38,23 @@ const Dashboard = ({ courseData }) => {
     localStorage.setItem('selectedCategory', selectedCategory);
   }, [selectedCategory]);
 
-  const toggleDarkMode = () => {
-    setDarkMode((prev) => !prev);
+  useEffect(() => {
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+  }, [favorites]);
+
+  const toggleDarkMode = () => setDarkMode(prev => !prev);
+
+  const toggleFavorite = (courseId) => {
+    setFavorites(prev => 
+      prev.includes(courseId) ? prev.filter(id => id !== courseId) : [...prev, courseId]
+    );
   };
 
-  const allCategories = Array.from(
-    new Set(courseData.flatMap((course) => course.categories))
-  );
+  const allCategories = Array.from(new Set(courseData.flatMap(course => course.categories)));
 
-  const matchesSearch = (course, Input) => {
-    const q = Input.toLowerCase();
-    return (
-      course.title.toLowerCase().includes(q) ||
-      course.description.toLowerCase().includes(q)
-    );
+  const matchesSearch = (course, input) => {
+    const q = input.toLowerCase();
+    return course.title.toLowerCase().includes(q) || course.description.toLowerCase().includes(q);
   };
 
   const filteredCourses = () => {
@@ -55,23 +63,23 @@ const Dashboard = ({ courseData }) => {
     let base = [...courseData];
 
     if (activeTab === 'beginner') {
-      base = base.filter((c) => c.level === 'Beginner');
+      base = base.filter(c => c.level === 'Beginner');
     } else if (activeTab === 'gemiddeld') {
-      base = base.filter((c) => c.level === 'Gemiddeld');
+      base = base.filter(c => c.level === 'Gemiddeld');
     } else if (activeTab === 'gevorderd') {
-      base = base.filter((c) => c.level === 'Gevorderd');
+      base = base.filter(c => c.level === 'Gevorderd');
     } else if (activeTab === 'populair') {
       base = base.sort((a, b) => b.views - a.views);
+    } else if (activeTab === 'favorieten') {
+      base = base.filter(course => favorites.includes(course.id));
     }
 
     if (searchInput.trim() !== '') {
-      base = base.filter((course) => matchesSearch(course, searchInput));
+      base = base.filter(course => matchesSearch(course, searchInput));
     }
 
     if (selectedCategory) {
-      base = base.filter((course) =>
-        course.categories.includes(selectedCategory)
-      );
+      base = base.filter(course => course.categories.includes(selectedCategory));
     }
 
     if (sortOption === 'rating') {
@@ -99,36 +107,12 @@ const Dashboard = ({ courseData }) => {
         </button>
 
         <nav className='tab-buttons'>
-          <button
-  className={activeTab === 'all' ? 'active' : ''}
-  onClick={() => setActiveTab('all')}
->
-  Alle
-</button>
-<button
-  className={activeTab === 'beginner' ? 'active' : ''}
-  onClick={() => setActiveTab('beginner')}
->
-  Beginner
-</button>
-<button
-  className={activeTab === 'gemiddeld' ? 'active' : ''}
-  onClick={() => setActiveTab('gemiddeld')}
->
-  Gemiddeld
-</button>
-<button
-  className={activeTab === 'gevorderd' ? 'active' : ''}
-  onClick={() => setActiveTab('gevorderd')}
->
-  Gevorderd
-</button>
-<button
-  className={activeTab === 'populair' ? 'active' : ''}
-  onClick={() => setActiveTab('populair')}
->
-  Populair
-</button>
+          <button className={activeTab === 'all' ? 'active' : ''} onClick={() => setActiveTab('all')}>Alle</button>
+          <button className={activeTab === 'beginner' ? 'active' : ''} onClick={() => setActiveTab('beginner')}>Beginner</button>
+          <button className={activeTab === 'gemiddeld' ? 'active' : ''} onClick={() => setActiveTab('gemiddeld')}>Gemiddeld</button>
+          <button className={activeTab === 'gevorderd' ? 'active' : ''} onClick={() => setActiveTab('gevorderd')}>Gevorderd</button>
+          <button className={activeTab === 'populair' ? 'active' : ''} onClick={() => setActiveTab('populair')}>Populair</button>
+          <button className={activeTab === 'favorieten' ? 'active' : ''} onClick={() => setActiveTab('favorieten')}>Favorieten</button>
         </nav>
 
         <SearchBar Input={searchInput} setInput={setSearchInput} />
@@ -141,10 +125,8 @@ const Dashboard = ({ courseData }) => {
             onChange={(e) => setSelectedCategory(e.target.value)}
           >
             <option value=''>-- Alle categorieën --</option>
-            {allCategories.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
+            {allCategories.map(category => (
+              <option key={category} value={category}>{category}</option>
             ))}
           </select>
         </div>
@@ -169,9 +151,22 @@ const Dashboard = ({ courseData }) => {
       <div className='dashboard-content'>
         <section className='main-content'>
           <h2>
-            {/* Tab title logic */}
+            {
+              {
+                all: 'Alle cursussen',
+                beginner: 'Beginner cursussen',
+                gemiddeld: 'Gemiddeld niveau',
+                gevorderd: 'Gevorderd niveau',
+                populair: 'Populaire cursussen',
+                favorieten: 'Je favorieten',
+              }[activeTab]
+            }
           </h2>
-          <CourseList courses={filteredCourses()} />
+          <CourseList
+            courses={filteredCourses()}
+            favorites={favorites}
+            toggleFavorite={toggleFavorite}
+          />
         </section>
 
         <aside className='sidebar'>

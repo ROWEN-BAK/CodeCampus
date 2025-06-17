@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import '../styles/CourseCard.css';
 
-const CourseCard = ({ course }) => {
+const CourseCard = ({ course, isFavorite, toggleFavorite }) => {
   const [showModal, setShowModal] = useState(false);
 
   if (!course)
@@ -15,12 +15,24 @@ const CourseCard = ({ course }) => {
     window.open(course.videoUrl, '_blank');
   };
 
+  const handleFavoriteClick = () => {
+    toggleFavorite(course.id);
+  };
+
   return (
     <>
       <article className='course-card'>
         <figure className='course-image'>
           <img src={course.imageUrl} alt={course.title} />
+          <button
+            className={`favorite-btn ${isFavorite ? 'favorited' : ''}`}
+            onClick={handleFavoriteClick}
+            title={isFavorite ? 'Verwijder uit favorieten' : 'Voeg toe aan favorieten'}
+          >
+            {isFavorite ? '❤️' : '🤍'}
+          </button>
         </figure>
+
         <div className='course-content'>
           <h3>{course.title}</h3>
           <p className='course-description'>{course.description}</p>
@@ -54,7 +66,7 @@ const CourseCard = ({ course }) => {
         <div className='modal-backdrop' onClick={() => setShowModal(false)}>
           <div
             className='modal'
-            onClick={(e) => e.stopPropagation()} // voorkomt sluiten bij klik binnenin
+            onClick={(e) => e.stopPropagation()}
           >
             <button
               className='modal-close'
@@ -63,13 +75,19 @@ const CourseCard = ({ course }) => {
               &times;
             </button>
 
-            {/* Course Image */}
             <img src={course.imageUrl} alt={course.title} className='modal-image' />
-
-            <h2>{course.title}</h2>
+            <h2>
+              {course.title}{' '}
+              <button
+                className={`favorite-btn ${isFavorite ? 'favorited' : ''}`}
+                onClick={handleFavoriteClick}
+                title={isFavorite ? 'Verwijder uit favorieten' : 'Voeg toe aan favorieten'}
+              >
+                {isFavorite ? '❤️' : '🤍'}
+              </button>
+            </h2>
             <p className='modal-description'>{course.description}</p>
 
-            {/* Course Info */}
             <div className='modal-info'>
               <span><strong>Duur:</strong> {course.duration}</span>
               <span><strong>Leden:</strong> {course.members}</span>
@@ -79,7 +97,6 @@ const CourseCard = ({ course }) => {
               )}
             </div>
 
-            {/* Objectives */}
             {course.objectives?.length > 0 && (
               <>
                 <h4>Leermiddelen:</h4>
@@ -91,7 +108,6 @@ const CourseCard = ({ course }) => {
               </>
             )}
 
-            {/* Buttons */}
             <div className='modal-actions'>
               <button className='course-button' onClick={openVideo}>
                 Bekijk video

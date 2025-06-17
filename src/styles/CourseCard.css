@@ -261,6 +261,21 @@
   }
 }
 
+.favorite-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+}
+
+.favorite-btn.favorited {
+  color: red;
+}
+
+
 @media (max-width: 500px) {
   .course-list {
     grid-template-columns: 1fr;
